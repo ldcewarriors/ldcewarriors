@@ -3,6 +3,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
+import MockTestTile from '@/components/quiz/MockTestTile'
 
 export default function QuizCatalog({ mode = 'TOPIC' }) {
   const [quizzes, setQuizzes] = useState([])
@@ -167,12 +168,17 @@ export default function QuizCatalog({ mode = 'TOPIC' }) {
 
         <div style={{
           display: 'grid',
-          gridTemplateColumns:
-            'repeat(auto-fit, minmax(275px, 1fr))',
+          gridTemplateColumns: isMock
+            ? 'repeat(auto-fill, minmax(min(100%, 340px), 1fr))'
+            : 'repeat(auto-fit, minmax(275px, 1fr))',
           gap: 20,
           marginTop: 30,
         }}>
-          {visible.map(quiz => (
+          {isMock && visible.map(quiz => (
+            <MockTestTile key={quiz.id} quiz={quiz} />
+          ))}
+
+          {!isMock && visible.map(quiz => (
             <article
               key={quiz.id}
               style={{

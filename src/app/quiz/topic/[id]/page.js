@@ -10,17 +10,9 @@ import {
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 
-import {
-  FiClipboard,
-  FiAward,
-  FiClock,
-  FiUnlock,
-  FiPlay,
-  FiArrowRight,
-} from 'react-icons/fi'
-
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
+import MockTestTile from '@/components/quiz/MockTestTile'
 
 function validFamilyMembership(user) {
   if (!user?.isPremium) return false
@@ -33,117 +25,6 @@ function validFamilyMembership(user) {
   }
 
   return true
-}
-
-/* ---------------------------------
-   STAT COMPONENT
---------------------------------- */
-
-function Stat({ icon, label, value, type }) {
-  return (
-    <div className="mock-stat">
-      <span className={`mock-stat-icon ${type}`}>
-        {icon}
-      </span>
-
-      <div className="mock-stat-text">
-        <span className="mock-stat-label">
-          {label}
-        </span>
-
-        <strong className={`mock-stat-value ${type}`}>
-          {value}
-        </strong>
-      </div>
-    </div>
-  )
-}
-
-/* ---------------------------------
-   QUIZ CARD
---------------------------------- */
-
-function QuizCard({ quiz, index }) {
-  // The server decides: Free → open to everyone, Premium → family members only
-  const locked = Boolean(quiz.locked)
-
-  const displayNumber = String(quiz.order || index + 1)
-    .padStart(2, '0')
-
-  const totalMarks = Number(quiz.totalMarks) || 0
-
-  const href = locked
-    ? '/join-family'
-    : `/exam/${quiz.id}`
-
-  return (
-    <article className="mock-card">
-      <div className="mock-card-content">
-
-        {/* TITLE */}
-
-        <div className="mock-card-top">
-          <h2 className="mock-title">
-            Mock Test – {displayNumber}
-          </h2>
-
-          <div className="mock-gold-line" />
-
-          <p className="mock-original-title">
-            {quiz.title}
-          </p>
-        </div>
-
-        {/* QUESTION STATS */}
-
-        <div className="mock-stats">
-          <Stat
-            type="questions"
-            icon={<FiClipboard />}
-            label="Questions"
-            value={quiz.questionCount}
-          />
-
-          <Stat
-            type="marks"
-            icon={<FiAward />}
-            label="Marks"
-            value={totalMarks}
-          />
-
-          <Stat
-            type="time"
-            icon={<FiClock />}
-            label="Time"
-            value={`${quiz.durationMinutes} Min`}
-          />
-        </div>
-
-        {/* FAMILY / NON FAMILY BUTTON */}
-
-        <Link
-          href={href}
-          className={`mock-action ${
-            locked
-              ? 'mock-action-unlock'
-              : 'mock-action-start'
-          }`}
-        >
-          <span className="mock-action-icon-wrap">
-            {locked ? <FiUnlock /> : <FiPlay />}
-          </span>
-
-          <span className="mock-action-divider" />
-
-          <span className="mock-action-text">
-            {locked ? 'Unlock Now' : 'Start Test'}
-          </span>
-
-          <FiArrowRight className="mock-action-arrow" />
-        </Link>
-      </div>
-    </article>
-  )
 }
 
 /* ---------------------------------
@@ -354,10 +235,10 @@ export default function TopicQuizzesPage() {
           {!loading && !error && (
             <div className="mock-grid">
               {quizzes.map((quiz, index) => (
-                <QuizCard
+                <MockTestTile
                   key={quiz.id}
                   quiz={quiz}
-                  index={index}
+                  label={`Mock Test – ${String(quiz.order || index + 1).padStart(2, '0')}`}
                 />
               ))}
             </div>
@@ -469,7 +350,7 @@ export default function TopicQuizzesPage() {
 
         .mock-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(280px, 320px));
+          grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 380px));
           justify-content: center;
           gap: 22px;
           align-items: stretch;

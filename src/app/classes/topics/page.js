@@ -1,86 +1,121 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
-import { textbookStyles } from '@/components/materials/TextbookCard'
-import TopicCardGrid, { plural } from '@/components/topics/TopicCardGrid'
 
-export default function ClassesTopicsPage() {
-  const [topics, setTopics] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [search, setSearch] = useState('')
+const choices = [
+  {
+    href: '/free-videos',
+    banner: '/demo-classes-banner.png',
+    alt: 'Demo Classes - Watch demo classes',
+  },
+  {
+    href: '/classes/full',
+    banner: '/full-length-classes-banner.png',
+    alt: 'Full Length Classes - Watch complete classes',
+  },
+]
 
-  useEffect(() => {
-    let cancelled = false
-    fetch('/api/admin/topics', { cache: 'no-store' })
-      .then(r => r.json())
-      .then(data => {
-        if (cancelled) return
-        if (!data.success) throw new Error(data.error)
-        setTopics(data.topics || [])
-      })
-      .catch(() => !cancelled && setError('Unable to load topics right now.'))
-      .finally(() => !cancelled && setLoading(false))
-    return () => { cancelled = true }
-  }, [])
-
-  const q = search.trim().toLowerCase()
-  const visible = topics.filter(t => !q || t.name.toLowerCase().includes(q))
-
+export default function ClassesChooserPage() {
   return (
     <>
       <Navbar />
-      <main className="mat-page">
-        <header className="mat-hero">
+
+      <main className="cc-page">
+        <header className="cc-hero">
           <h1>In-Depth Technical Classes</h1>
-          <p>Choose a topic to watch its video lessons.</p>
+          <p>Choose how you want to learn.</p>
         </header>
 
-        {topics.length > 6 && (
-          <div className="tp-search">
-            <input
-              type="search"
-              placeholder="Search topics…"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
-          </div>
-        )}
-
-        {error ? (
-          <p className="mat-empty">{error}</p>
-        ) : !loading && visible.length === 0 ? (
-          <p className="mat-empty">{topics.length ? 'No topics match your search.' : 'Classes are coming soon. Stay tuned!'}</p>
-        ) : (
-          <TopicCardGrid
-            loading={loading}
-            buttonLabel="Watch Classes →"
-            items={visible.map(topic => {
-              const id = topic._id || topic.id
-              const total = topic.videoCount || 0
-              const free = topic.freeVideoCount || 0
-              return {
-                id,
-                name: topic.name,
-                thumbnail: topic.thumbnail,
-                href: `/classes?topic=${id}`,
-                countLabel: total ? `🎬 ${plural(total, 'Video')}${free ? ` · ${free} free` : ''}` : '',
-              }
-            })}
-          />
-        )}
+        <div className="cc-grid">
+          {choices.map(c => (
+            <Link key={c.href} href={c.href} className="cc-choice">
+              <img
+                src="/learning-classes.png"
+                alt="LDCE Warriors technical class"
+                className="cc-photo"
+              />
+              <img
+                src={c.banner}
+                alt={c.alt}
+                className="cc-banner"
+              />
+            </Link>
+          ))}
+        </div>
       </main>
+
       <Footer />
 
       <style>{`
-        ${textbookStyles}
-
-        .tp-search { max-width:420px; margin:0 auto 24px; }
-        .tp-search input { width:100%; padding:11px 16px; border:1px solid #E5E7EB; border-radius:12px; font-size:14px; background:#fff; outline:none; }
-        .tp-search input:focus { border-color:#E8A838; }
-
+        .cc-page {
+          min-height: 100vh;
+          background: #F5F3EF;
+          padding: 120px 20px 70px;
+        }
+        .cc-hero {
+          text-align: center;
+          margin-bottom: 32px;
+        }
+        .cc-hero h1 {
+          font-family: 'Playfair Display', serif;
+          font-size: clamp(28px, 5vw, 44px);
+          font-weight: 800;
+          color: #C8102E;
+          margin-bottom: 8px;
+        }
+        .cc-hero p {
+          color: #6B7280;
+          font-size: 15px;
+        }
+        .cc-grid {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 32px;
+          max-width: 1100px;
+          margin: 0 auto;
+        }
+        .cc-choice {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 16px;
+          text-decoration: none;
+        }
+        .cc-photo {
+          display: block;
+          width: 100%;
+          aspect-ratio: 16 / 9;
+          object-fit: cover;
+          border-radius: 20px;
+          border: 1px solid #E5E7EB;
+          box-shadow: 0 8px 24px rgba(27, 42, 74, 0.08);
+          transition: transform .25s ease, box-shadow .25s ease;
+        }
+        .cc-banner {
+          display: block;
+          width: 88%;
+          height: auto;
+          border-radius: 14px;
+          mix-blend-mode: multiply;
+          transition: transform .25s ease;
+        }
+        .cc-choice:hover .cc-photo {
+          transform: translateY(-4px);
+          box-shadow: 0 14px 32px rgba(27, 42, 74, 0.15);
+        }
+        .cc-choice:hover .cc-banner {
+          transform: scale(1.03);
+        }
+        @media (max-width: 680px) {
+          .cc-page { padding: 96px 14px 50px; }
+          .cc-grid {
+            grid-template-columns: 1fr;
+            max-width: 480px;
+            gap: 36px;
+          }
+        }
       `}</style>
     </>
   )

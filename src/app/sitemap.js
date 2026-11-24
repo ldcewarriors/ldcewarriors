@@ -11,6 +11,8 @@ export default async function sitemap() {
   const pages = [
     { path: '/', priority: 1, changeFrequency: 'daily' },
     { path: '/classes/topics', priority: 0.9, changeFrequency: 'weekly' },
+    { path: '/classes/full', priority: 0.8, changeFrequency: 'weekly' },
+    { path: '/free-videos', priority: 0.8, changeFrequency: 'weekly' },
     { path: '/quiz', priority: 0.9, changeFrequency: 'weekly' },
     { path: '/materials', priority: 0.9, changeFrequency: 'weekly' },
     { path: '/articles', priority: 0.8, changeFrequency: 'daily' },

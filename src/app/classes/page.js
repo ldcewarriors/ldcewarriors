@@ -461,7 +461,6 @@ function EmptyState({ icon, title, subtitle }) {
    INNER PAGE CONTENT
 ═══════════════════════════════════════════ */
 function ClassesPageInner() {
-  const [freeVideos,        setFreeVideos]        = useState([])
   const [joinFamilyVideos,  setJoinFamilyVideos]  = useState([])
   const [topics,            setTopics]            = useState([])
   const [selectedVideo,     setSelectedVideo]     = useState(null)
@@ -565,14 +564,10 @@ function ClassesPageInner() {
     const requestId = ++topicRequestRef.current
     setJoinFamilyLoading(true)
     try {
-      const [freeRes, familyRes] = await Promise.all([
-        fetch(`/api/videos?topicId=${topicId}&type=free&limit=100`),
-        fetch(`/api/videos?topicId=${topicId}&type=premium&limit=100`),
-      ])
-      const [freeData, familyData] = await Promise.all([freeRes.json(), familyRes.json()])
+      const familyRes = await fetch(`/api/videos?topicId=${topicId}&type=premium&limit=100`)
+      const familyData = await familyRes.json()
       // Ignore answers for a topic the user has already switched away from
       if (requestId !== topicRequestRef.current) return
-      setFreeVideos(freeData.success ? freeData.videos || [] : [])
       setJoinFamilyVideos(familyData.success ? familyData.videos || [] : [])
     } catch {}
     if (requestId === topicRequestRef.current) setJoinFamilyLoading(false)
@@ -1093,7 +1088,7 @@ function ClassesPageInner() {
     letterSpacing: '-1px',
   }}
 >
-  Classes
+  In-Depth Classes
 </h1>
 
             {/* <p style={{
@@ -1117,7 +1112,8 @@ function ClassesPageInner() {
   }}
 >
   {/* FREE VIDEOS */}
-  <span
+  <Link
+    href="/free-videos"
     style={{
       display: 'inline-flex',
       alignItems: 'center',
@@ -1131,10 +1127,11 @@ function ClassesPageInner() {
       fontWeight: 800,
       color: tk.teal,
       lineHeight: 1.4,
+      textDecoration: 'none',
     }}
   >
-    ✓ Free videos — open to all
-  </span>
+    🎬 Watch free demo classes →
+  </Link>
 
   {isSubscribed ? (
     /* FAMILY MEMBERSHIP ACTIVE */
@@ -1189,44 +1186,6 @@ function ClassesPageInner() {
           ════════════════════════════════════════ */}
           {showTabs && (
             <div style={{ animation: 'fadeInUp 0.55s ease 0.1s both' }}>
-              {(
-                <section>
-                  <div style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    marginBottom: '14px', gap: '10px', flexWrap: 'wrap',
-                  }}>
-                    <div>
-                      <SectionLabel color={tk.teal} bg='rgba(42,157,143,0.09)' border='rgba(42,157,143,0.2)'>🎬 Free Samples</SectionLabel>
-                      <h2 style={{ fontFamily: 'Playfair Display,serif', fontWeight: 800, fontSize: isMobile ? '18px' : '22px', color: tk.text }}>{activeTopicData ? `Free Videos — ${activeTopicData.name}` : 'Start Here — Free Videos'}</h2>
-                    </div>
-                    <span style={{ fontSize: '11px', color: tk.faint, background: tk.card, border: `1px solid ${tk.border}`, padding: '5px 12px', borderRadius: '999px' }}>
-                      {loading || joinFamilyLoading ? '…' : `${freeVideos.length} video${freeVideos.length !== 1 ? 's' : ''}`}
-                    </span>
-                  </div>
-
-                  {loading || joinFamilyLoading ? (
-                    <div style={{ display: 'grid', gridTemplateColumns: gridCols, gap: gridGap }}>
-                      {[1, 2, 3].map(i => <SkeletonCard key={i}/>)}
-                    </div>
-                  ) : freeVideos.length > 0 ? (
-                    <div style={{ display: 'grid', gridTemplateColumns: gridCols, gap: gridGap }}>
-                      {freeVideos.map(v => (
-                        <VideoCard
-                          key={v._id}
-                          video={v}
-                          onClick={() => handleVideoClick(v)}
-                          isSubscribed={isSubscribed}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <EmptyState icon="🎬" title={`No free videos for ${activeTopicData?.name || 'this topic'} yet`} subtitle="See the Join Family videos below, or pick another topic."/>
-                  )}
-                </section>
-              )}
-
-              <div className="cls-divider"/>
-
               {(
                 <section id="join-family-section">
                   <div style={{
@@ -1298,43 +1257,6 @@ function ClassesPageInner() {
           ════════════════════════════════════════ */}
           {!showTabs && (
             <>
-              {/* ── FREE VIDEOS ── */}
-              <section style={{ animation: 'fadeInUp 0.55s ease 0.08s both' }}>
-                <div style={{
-                  display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between',
-                  marginBottom: '20px', gap: '12px', flexWrap: 'wrap',
-                }}>
-                  <div>
-                    <SectionLabel color={tk.teal} bg='rgba(42,157,143,0.09)' border='rgba(42,157,143,0.18)'>🎬 Free Samples</SectionLabel>
-                    <h2 style={{ fontFamily: 'Playfair Display,serif', fontWeight: 800, fontSize: 'clamp(20px,3vw,28px)', color: tk.text }}>{activeTopicData ? `Free Videos — ${activeTopicData.name}` : 'Start Here — Free Videos'}</h2>
-                  </div>
-                  <span style={{ fontSize: '12px', color: tk.faint, background: tk.card, border: `1px solid ${tk.border}`, padding: '6px 14px', borderRadius: '999px' }}>
-                    {loading || joinFamilyLoading ? '…' : `${freeVideos.length} video${freeVideos.length !== 1 ? 's' : ''}`}
-                  </span>
-                </div>
-
-                {loading || joinFamilyLoading ? (
-                  <div style={{ display: 'grid', gridTemplateColumns: gridCols, gap: gridGap }}>
-                    {[1, 2, 3].map(i => <SkeletonCard key={i}/>)}
-                  </div>
-                ) : freeVideos.length > 0 ? (
-                  <div style={{ display: 'grid', gridTemplateColumns: gridCols, gap: gridGap }}>
-                    {freeVideos.map(v => (
-                      <VideoCard
-                        key={v._id}
-                        video={v}
-                        onClick={() => handleVideoClick(v)}
-                        isSubscribed={isSubscribed}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <EmptyState icon="🎬" title={`No free videos for ${activeTopicData?.name || 'this topic'} yet`} subtitle="See the Join Family videos below, or pick another topic."/>
-                )}
-              </section>
-
-              <div className="cls-divider"/>
-
               {/* ── JOIN FAMILY SECTION ── */}
               <section id="join-family-section" style={{ animation: 'fadeInUp 0.55s ease 0.16s both' }}>
                 <div style={{

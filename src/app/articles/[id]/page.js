@@ -3,9 +3,10 @@ import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import Link from 'next/link'
 import ReadingProgress from '@/components/ui/ReadingProgress'
+import { getBaseUrl } from '@/lib/baseUrl'
 
 async function getArticle(id) {
-  const base = process.env.NEXTAUTH_URL || 'http://localhost:3000'
+  const base = await getBaseUrl()
   try {
     const res = await fetch(`${base}/api/articles/${id}`, { cache: 'no-store' })
     if (res.ok) {

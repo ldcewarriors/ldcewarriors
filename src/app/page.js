@@ -9,6 +9,7 @@ import HomeVideoSection from '@/components/home/HomeSections'
 import LearningGateway from '@/components/home/LearningGateway'
 import TopicCardGrid, { plural } from '@/components/topics/TopicCardGrid'
 import { cookies } from 'next/headers'
+import { getBaseUrl } from '@/lib/baseUrl'
 import { verifyToken } from '@/lib/auth'
 import prisma from '@/lib/db'
 
@@ -19,7 +20,7 @@ export const dynamic = 'force-dynamic'
    DATA FETCHING
 ───────────────────────────────────────── */
 async function getData() {
-  const base = process.env.NEXTAUTH_URL || 'http://localhost:3000'
+  const base = await getBaseUrl()
 
   try {
     const [heroRes, videosRes, articlesRes, liveRes, topicsRes] =

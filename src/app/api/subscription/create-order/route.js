@@ -4,10 +4,17 @@ import prisma from '@/lib/db'
 import { verifyToken } from '@/lib/auth'
 import Razorpay from 'razorpay'
 
-const razorpay = new Razorpay({
-  key_id:     process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
-})
+// Created on first use, not at import, so builds work without the keys
+let razorpayClient = null
+function getRazorpay() {
+  if (!razorpayClient) {
+    razorpayClient = new Razorpay({
+      key_id:     process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
+    })
+  }
+  return razorpayClient
+}
 
 async function getLivePrice() {
   try {
@@ -161,7 +168,7 @@ export async function POST(req) {
       userId: decoded.userId,
     })
 
-    const order = await razorpay.orders.create({
+    const order = await getRazorpay().orders.create({
       amount:   amountPaise,
       currency: 'INR',
       receipt,

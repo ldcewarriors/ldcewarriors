@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import Navbar from '@/components/layout/Navbar'
@@ -12,18 +12,8 @@ export default function DemoClassesPage() {
   const [videos, setVideos] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [topic, setTopic] = useState('all')
   const [selectedVideo, setSelectedVideo] = useState(null)
   const startingRef = useRef(false)
-  const [banner, setBanner] = useState(null)
-
-  // Use the Demo Classes banner once it is added to /public
-  useEffect(() => {
-    const probe = new Image()
-    probe.onload = () => setBanner('/demo-classes-banner.png')
-    probe.onerror = () => setBanner('/free-videos-banner.png')
-    probe.src = '/demo-classes-banner.png'
-  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -39,17 +29,6 @@ export default function DemoClassesPage() {
     return () => { cancelled = true }
   }, [])
 
-  const topics = useMemo(() => {
-    const map = new Map()
-    videos.forEach(v => {
-      if (v.topic?.id) map.set(v.topic.id, v.topic.name)
-    })
-    return [...map].map(([id, name]) => ({ id, name }))
-  }, [videos])
-
-  const visible = topic === 'all'
-    ? videos
-    : videos.filter(v => v.topic?.id === topic)
 
   async function play(video) {
     if (startingRef.current) return
@@ -79,30 +58,13 @@ export default function DemoClassesPage() {
 
       <main className="fv-page">
         <header className="fv-hero">
-          {banner && (
-            <img
-              src={banner}
-              alt="Demo Classes - Watch demo classes"
-              className="fv-banner"
-            />
-          )}
+          <img
+            src="/demo-classes-banner.png"
+            alt="Demo Classes - Watch demo classes"
+            className="fv-banner"
+          />
           <p>Open to everyone — no sign-in needed. Tap any video to play.</p>
         </header>
-
-        {topics.length > 1 && (
-          <div className="fv-chips">
-            {[{ id: 'all', name: 'All' }, ...topics].map(t => (
-              <button
-                key={t.id}
-                type="button"
-                className={`fv-chip${topic === t.id ? ' is-active' : ''}`}
-                onClick={() => setTopic(t.id)}
-              >
-                {t.name}
-              </button>
-            ))}
-          </div>
-        )}
 
         {error ? (
           <p className="fv-empty">{error}</p>
@@ -110,11 +72,11 @@ export default function DemoClassesPage() {
           <div className="fv-grid">
             {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="fv-skeleton" />)}
           </div>
-        ) : visible.length === 0 ? (
+        ) : videos.length === 0 ? (
           <p className="fv-empty">Demo classes are coming soon. Stay tuned!</p>
         ) : (
           <div className="fv-grid">
-            {visible.map(v => (
+            {videos.map(v => (
               <VideoCard
                 key={v._id || v.id}
                 video={v}
@@ -155,35 +117,12 @@ export default function DemoClassesPage() {
           width: 100%;
           max-width: 420px;
           height: auto;
-          margin: -40px auto -30px;
+          margin: 0 auto 14px;
           mix-blend-mode: multiply;
         }
         .fv-hero p {
           color: #6B7280;
           font-size: 15px;
-        }
-        .fv-chips {
-          display: flex;
-          flex-wrap: wrap;
-          justify-content: center;
-          gap: 10px;
-          max-width: 1200px;
-          margin: 0 auto 26px;
-        }
-        .fv-chip {
-          padding: 9px 16px;
-          border-radius: 999px;
-          border: 1px solid #E5E7EB;
-          background: #FFFFFF;
-          color: #1B2A4A;
-          font-weight: 700;
-          font-size: 13px;
-          cursor: pointer;
-        }
-        .fv-chip.is-active {
-          background: #1B2A4A;
-          border-color: #1B2A4A;
-          color: #FFFFFF;
         }
         .fv-grid {
           display: grid;
@@ -229,7 +168,8 @@ export default function DemoClassesPage() {
         }
         @media (max-width: 600px) {
           .fv-page { padding: 90px 14px 50px; }
-          .fv-banner { margin: -24px auto -18px; }
+          .fv-banner { margin: 0 auto 10px; }
+          .fv-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
         }
       `}</style>
     </>
